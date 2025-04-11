@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: error-page
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: error-page
+  template:
+    metadata:
+      labels:
+        app: error-page
+    spec:
+      containers:
+      - name: error-page
+        image: nginx:alpine 
+        volumeMounts:
+        - name: error-page-volume
+          mountPath: /usr/share/nginx/html 
+      volumes:
+      - name: error-page-volume
+        configMap:
+          name: error-page-config
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: error-page-config
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Oops! Error</title>
+    </head>
+    <body>
+        <h1>Sorry, we're currently down for maintenance. Please try again later.</h1>
+    </body>
+    </html>
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: error-page-service
+spec:
+  selector:
+    app: error-page
+  ports:
+    - port: 80
+      targetPort: 80
+

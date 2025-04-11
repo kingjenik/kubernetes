@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: fallback-route
+  namespace: webapp-test 
+spec:
+  entryPoints:
+    - web 
+  routes:
+    - match: HostRegexp(`{catchall:.+}`)
+      kind: Rule
+      middlewares:
+        - name: middleware-replacepath
+      services:
+        - name: error-page-service 
+          port: 80
+
